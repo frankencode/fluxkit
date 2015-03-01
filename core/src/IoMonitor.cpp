@@ -49,7 +49,7 @@ Ref<IoActivity> IoMonitor::wait(double timeout)
 {
     PollFd *fds = 0;
     if (events_->count() > 0) fds = fds_->data();
-    int n = ::poll(fds, events_->count(), timeout * 1000);
+    int n = ::poll(fds, events_->count(), (timeout > 0) ? timeout * 1000 : timeout);
     if (n < 0) FLUX_SYSTEM_DEBUG_ERROR(errno);
 
     FLUX_ASSERT(n <= events_->count());

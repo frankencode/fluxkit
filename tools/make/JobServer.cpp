@@ -7,13 +7,15 @@
  */
 
 #include <flux/ProcessFactory>
+#include <flux/IoMonitor>
 #include "JobServer.h"
 
 namespace fluxmake {
 
-JobServer::JobServer(JobChannel *requestChannel, JobChannel *replyChannel):
+JobServer::JobServer(JobChannel *requestChannel, JobChannel *replyChannel, bool paranoid):
     requestChannel_(requestChannel),
-    replyChannel_(replyChannel)
+    replyChannel_(replyChannel),
+    paranoid_(paranoid)
 {
     Thread::start();
 }
@@ -27,16 +29,32 @@ JobServer::~JobServer()
 void JobServer::run()
 {
     Ref<ProcessFactory> factory = ProcessFactory::create();
-    factory->setIoPolicy(Process::CloseInput|Process::ForwardOutput|Process::ErrorToOutput);
+    factory->setIoPolicy(Process::CloseInput|Process::ForwardOutput|Process::ForwardError);
 
-    while (true) {
-        Ref<Job> job = requestChannel_->popFront();
-        if (!job) break;
+    for (Ref<Job> job; requestChannel_->popFront(&job);) {
         factory->setCommand(job->command_);
         Ref<Process> process = factory->produce();
-        job->outputText_ = process->out()->readAll();
+        Ref<StringList> outputList = StringList::create();
+        Ref<ByteArray> buffer = ByteArray::create(0x1000);
+        Ref<IoMonitor> monitor = IoMonitor::create(2);
+        Ref<IoEvent> outReady = monitor->addEvent(process->out(), IoEvent::ReadyRead);
+        Ref<IoEvent> errReady = monitor->addEvent(process->err(), IoEvent::ReadyRead);
+        bool abort = false;
+        for (Ref<IoActivity> activity; activity = monitor->wait();) {
+            for (int i = 0; i < activity->count(); ++i) {
+                int fill = activity->at(i)->stream()->read(buffer);
+                outputList->append(ByteRange(buffer, 0, fill));
+                if (paranoid_ && activity->at(i) == errReady)
+                    abort = true;
+            }
+        }
+        job->outputText_ = outputList->join();
         job->status_ = process->wait();
         replyChannel_->pushBack(job);
+        if (abort) {
+            job->status_ = -1;
+            break;
+        }
     }
 }
 

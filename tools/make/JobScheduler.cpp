@@ -12,13 +12,14 @@
 
 namespace fluxmake {
 
-Ref<JobScheduler> JobScheduler::create(int concurrency)
+Ref<JobScheduler> JobScheduler::create(int concurrency, bool paranoid)
 {
-    return new JobScheduler(concurrency);
+    return new JobScheduler(concurrency, paranoid);
 }
 
-JobScheduler::JobScheduler(int concurrency)
+JobScheduler::JobScheduler(int concurrency, bool paranoid)
     : concurrency_((concurrency > 0) ? concurrency : System::concurrency()),
+      paranoid_(paranoid),
       requestChannel_(JobChannel::create()),
       replyChannel_(JobChannel::create()),
       started_(false),
@@ -33,7 +34,7 @@ void JobScheduler::start()
     started_ = true;
     serverPool_ = ServerPool::create();
     for (int i = 0; i < concurrency_; ++i)
-        serverPool_->pushBack(JobServer::start(requestChannel_, replyChannel_));
+        serverPool_->pushBack(JobServer::start(requestChannel_, replyChannel_, paranoid_));
 }
 
 void JobScheduler::schedule(Job *job)

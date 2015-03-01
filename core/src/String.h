@@ -43,7 +43,7 @@ public:
     explicit String(const Variant &b);
     String(Ref<StringList> parts);
 
-    String(const char *data, int size = -1): Super(ByteArray::copy(data, size)) {}
+    String(const char *data, int size = -1);
 
     inline static String join(const StringList *parts, String sep = "") { return ByteArray::join(parts, sep); }
 

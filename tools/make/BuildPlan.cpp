@@ -118,6 +118,7 @@ void BuildPlan::readRecipe(BuildPlan *parentPlan)
     if (recipe_->value("test-report")) options_ |= BuildTests;
     if (recipe_->value("clean"))       options_ |= BuildTests;
     if (recipe_->value("verbose"))     options_ |= Verbose;
+    if (recipe_->value("paranoid"))    options_ |= Paranoid;
     if (recipe_->value("configure"))   options_ |= Configure;
 
     concurrency_ = recipe_->value("concurrency");

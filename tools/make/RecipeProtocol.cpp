@@ -84,6 +84,7 @@ protected:
         insert("install", false);
         insert("uninstall", false);
 
+        insert("paranoid", false);
         insert("verbose", false);
         insert("configure", false);
         insert("concurrency", -1);

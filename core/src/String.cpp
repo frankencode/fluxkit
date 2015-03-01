@@ -15,8 +15,15 @@ namespace flux {
 
 String::String(): Super(Singleton<ByteArray>::instance()) {}
 
-String::String(const Variant &b)
-    : Super(cast<ByteArray>(b))
+String::String(const char *data, int size)
+{
+    if (size < 0 && data) size = strlen(data);
+    if (size <= 0) Super::set(Singleton<ByteArray>::instance());
+    else Super::set(ByteArray::copy(data, size));
+}
+
+String::String(const Variant &b):
+    Super(cast<ByteArray>(b))
 {
     if (!Super::get()) Super::set(Singleton<ByteArray>::instance());
 }

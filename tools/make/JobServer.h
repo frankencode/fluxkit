@@ -18,17 +18,18 @@ namespace fluxmake {
 class JobServer: public Thread
 {
 public:
-    inline static Ref<JobServer> start(JobChannel *requestChannel, JobChannel *replyChannel) {
-        return new JobServer(requestChannel, replyChannel);
+    inline static Ref<JobServer> start(JobChannel *requestChannel, JobChannel *replyChannel, bool paranoid = false) {
+        return new JobServer(requestChannel, replyChannel, paranoid);
     }
 
 private:
-    JobServer(JobChannel *requestChannel, JobChannel *replyChannel);
+    JobServer(JobChannel *requestChannel, JobChannel *replyChannel, bool paranoid);
     ~JobServer();
     virtual void run();
 
     Ref<JobChannel> requestChannel_;
     Ref<JobChannel> replyChannel_;
+    bool paranoid_;
 };
 
 } // namespace fluxmake

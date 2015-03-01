@@ -60,7 +60,7 @@ public:
     IoEvent *addEvent(SystemStream *stream, int activity);
     void removeEvent(IoEvent *event);
 
-    Ref<IoActivity> wait(double timeout);
+    Ref<IoActivity> wait(double timeout = -1);
 
 private:
     typedef struct pollfd PollFd;

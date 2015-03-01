@@ -19,7 +19,7 @@ using namespace flux;
 class JobScheduler: public Object
 {
 public:
-    static Ref<JobScheduler> create(int concurrency = -1);
+    static Ref<JobScheduler> create(int concurrency = -1, bool paranoid = false);
 
     inline int concurrency() const { return concurrency_; }
 
@@ -32,9 +32,10 @@ public:
     inline int finishCount() const { return finishCount_; }
 
 private:
-    JobScheduler(int concurrency);
+    JobScheduler(int concurrency, bool paranoid);
 
     int concurrency_;
+    bool paranoid_;
 
     Ref<JobChannel> requestChannel_;
     Ref<JobChannel> replyChannel_;

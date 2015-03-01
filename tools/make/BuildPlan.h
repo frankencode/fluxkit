@@ -54,7 +54,8 @@ public:
         Bootstrap     = 1 << 9,
         BuildTests    = 1 << 10,
         Verbose       = 1 << 11,
-        Configure     = 1 << 12,
+        Paranoid      = 1 << 12,
+        Configure     = 1 << 13,
         Unspecified   = -1,
         GlobalOptions = Debug|
                         Release|
